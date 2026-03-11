@@ -115,13 +115,48 @@ app.get("/my-orders", async (req, res) => {
     res.send(allOrders);
 });
 
-// to view all the menus placed
+// Route to update existing Records
 
-app.get("/my-menus", async (req,res) =>{
-    const allMenus = await menuCollection.find();
-    console.log("My Menus",allMenus);
-    res.send(allMenus);
+app.put("/update-menu", async (req, res) => {
+    try {
+        const isMenuUpdated = await menuCollection.findOneAndUpdate(
+            { menuName: req.body.menuName },//filter
+            req.body,
+            { returnDocument: true },
+        );
+
+        if (isMenuUpdated) {
+            res.send("menu Updated Successfully");
+        }
+        else{
+            res.send("Error in Menu Updation  Process");
+
+        }
+    } catch (error) {
+        console.log("err",error);
+        res.send("Error in updating!")
+    }
 });
+
+app.put("/update-order",async(req,res)=>{
+     try {
+        const isOrderUpdateSuccess= await orderCollection.findOneAndUpdate(
+           {orderName:req.body.orderName},
+           req.body,
+           {returnDocument: true}
+        );
+        if(isOrderUpdateSuccess)
+        {
+          res.send("Order has been updated");
+        }else{
+            res.send("Error in updation");
+        }
+
+     } catch (error) {
+        console.log("error",error);
+        res.send("internal error! please try again!")
+     }
+})
 
 app.listen(8000, () => {
     console.log("Server running in port", 8000)
