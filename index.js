@@ -42,6 +42,37 @@ const menuSchema = new mongoose.Schema({
 });
 const menuCollection = new mongoose.model("menu", menuSchema);
 
+// storing products
+const productSchema=new mongoose.Schema({
+    category:String,
+    price:Number,
+    rating:{rate:Number, count:Number},
+    description:String,
+    image:String,
+    title:String,
+    id:Number
+})
+
+const productCollection = new mongoose.model("product-cart",productSchema);
+
+//storing products
+
+app.post("/addToCart",(req,res)=>{
+  productCollection.findOne({title:req.body.title}).then((alreadyAddedToCart)=>{
+  if(alreadyAddedToCart)
+  {
+    res.send("Products is already added to Cart")
+  }
+  else{
+    const newCartItem=productCollection(req.body);
+    newCartItem.save().then(()=>{
+        
+    }).catch(()=>{});
+  }
+  }).catch(()=>{
+
+  });
+})
 app.post("/add-menu", (req, res) => {
     menuCollection.findOne({ menuName: req.body.menuName }).then((isMenuPresent) => {
         if (isMenuPresent) {
@@ -158,6 +189,43 @@ app.put("/update-order",async(req,res)=>{
      }
 })
 
+app.delete("/delete-order", async (req,res)=>{
+  try {
+    const isOrderDeleted=await orderCollection.findOneAndDelete({
+    orderName:req.body.orderName
+    });
+    if(isOrderDeleted)
+    {
+        res.send("Order deleted Successflly!")
+    }  
+    else{
+        res.send("Orderr not found")
+    } 
+    }catch (error) {
+      res.send("Internal Server error! please try again later")
+  }   
+});
+
+app.delete("/delete-menu",async (req,res)=>{
+    try{
+    const ismenuDeleted=await menuCollection.findOneAndDelete({
+     menuName:req.body.menuName
+    });
+    if(ismenuDeleted)
+    {
+        res.send("menu deleted Successfully!")
+    }
+    else{
+        res.send("menu not found")
+    }
+    } catch (error) {
+        res.send("Internal Server error! please try again later")
+    }
+
+});
+
+
 app.listen(8000, () => {
     console.log("Server running in port", 8000)
 });
+
