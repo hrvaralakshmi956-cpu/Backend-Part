@@ -61,18 +61,29 @@ app.post("/addToCart",(req,res)=>{
   productCollection.findOne({title:req.body.title}).then((alreadyAddedToCart)=>{
   if(alreadyAddedToCart)
   {
-    res.send("Products is already added to Cart")
+    res.send("Products is already added to Cart");
   }
   else{
     const newCartItem=productCollection(req.body);
-    newCartItem.save().then(()=>{
+    newCartItem.save().then((isSaveSuccess)=>{
+        if (isSaveSuccess) {
+            res.send("Item Added To Cart");
+        }
+        else {
+            res.send("Failed To Add Item to Cart")
+        }
         
-    }).catch(()=>{});
+    }).catch((exerror)=>{
+        console.log(exerror);
+        res.send("An error occured ! please try again!")
+    });
   }
-  }).catch(()=>{
-
-  });
+  }).catch((exe) => {
+   console.log(exe);
+   res.send("unable to add products to cart at the moment")
+});
 })
+
 app.post("/add-menu", (req, res) => {
     menuCollection.findOne({ menuName: req.body.menuName }).then((isMenuPresent) => {
         if (isMenuPresent) {
@@ -143,6 +154,12 @@ app.post("/place-order", (req, res) => {
 app.get("/my-orders", async (req, res) => {
     const allOrders = await orderCollection.find();
     console.log("my orders", allOrders);
+    res.send(allOrders);
+});
+
+app.get("/cartItems", async (req, res) => {
+    const allOrders = await productCollection.find();
+    console.log("All cart Itmes", allOrders);
     res.send(allOrders);
 });
 
