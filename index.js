@@ -50,10 +50,13 @@ const productSchema=new mongoose.Schema({
     description:String,
     image:String,
     title:String,
-    id:Number
+    id:Number,
+    _id:String
 })
 
 const productCollection = new mongoose.model("product-cart",productSchema);
+
+const masterProductData=new mongoose.model("allproducts",productSchema);
 
 //storing products
 
@@ -242,7 +245,33 @@ app.delete("/delete-menu",async (req,res)=>{
 });
 
 
-app.listen(8000, () => {
-    console.log("Server running in port", 8000)
+app.delete("/removeCartItem",async(req,res)=>{
+    console.log(req.query.title);
+   try {
+    const isItemRemoved= await productCollection.findOneAndDelete({
+     title:req.query.title
+    })
+    if(isItemRemoved)
+    {
+        res.send("Item Removed from Cart")
+    }
+    else{
+        res.send("Failed to remove item from Cart !please try again!")
+    }
+   } catch (error) {
+    console.log(error);
+   }
 });
+
+app.get("/getAllProducts",async(req,res)=>{
+   const allproducts= await masterProductData.find();
+   console.log("all products",allproducts)
+   res.send(allproducts);
+})
+
+app.listen(8000, () => {
+    console.log("Server running in port", 8000);
+});
+
+//HTTP GET , POST , PUT AND DELETE
 
